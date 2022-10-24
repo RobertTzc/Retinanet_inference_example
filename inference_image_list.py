@@ -170,7 +170,7 @@ if __name__ == '__main__':
     text_out_dir = target_dir+'/detection-results'
     csv_out_dir = target_dir+'/detection_summary.csv'
     device = device
-    print ('*'*20)
+    print ('*'*30)
     print ('Using model type: {}'.format(model_type))
     print ('Using device: {}'.format(device))
     print ('Image out dir: {}'.format(image_out_dir))
@@ -178,7 +178,7 @@ if __name__ == '__main__':
     print ('Inferencing on Images:\n {}'.format(image_list))
     print ('Altitude of each image:\n {}'.format(altitude_list))
     print ('Visualize on each image:\n {}'.format(args.visualize))
-    print ('*'*20)
+    print ('*'*30)
     os.makedirs(image_out_dir, exist_ok=True)
     os.makedirs(text_out_dir, exist_ok=True)
     # inference_mega_image_Retinanet(
