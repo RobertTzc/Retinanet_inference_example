@@ -36,6 +36,7 @@ pip install cycler
 ```
 ## input format
 This script requires a speical format of iunput describes below
+```
 Image_folder (eg Bird_A)
 ├── image_name1.jpg
 ├── image_name1.txt # if want to evaluate
@@ -45,13 +46,14 @@ Image_folder (eg Bird_A)
 ├── image_name2.txt # if want to evaluate
 ├── ...
 └── image_info.csv
-
+```
 Inside the image_info.csv we requires at least the following columns:
-
+```
 image_name    |     Date     |   location   |   latitude   |   longitude   |   altitude    |
 ------------- | -------------| -------------| -------------| ------------- | ------------- | 
 2_80_3.jpg    |  2022_10_17  |  abc         |  N/A         |  N/A          |  80           |
 <required>    |  <optional>  |  <optional>  |  <optional>  |  <optional>   |  <required>   |
+```
 required are values critical to the program and optionals are description data for the record, if you have empty values, simply put N/A on optional values.
 
 ## Run the Scripts:
@@ -73,7 +75,7 @@ Avilable commands are:
 ```
 ## Output format
 When you specify the output dir, you shall expecting the output in the following:
-
+```
 Result folder 
 ├── detection-results
 │   ├── image_name1.txt
@@ -90,3 +92,4 @@ Result folder
 ├── f1_score.jpg    #if apply evaluation
 └── mAP.jpg         #if apply evaluation
 
+```
