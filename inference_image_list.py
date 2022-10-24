@@ -172,9 +172,9 @@ if __name__ == '__main__':
     #     altitude_list = 90 #if meta data is not avaliable, we use 90 meters for all images
     target_dir = args.out_dir
     model_dir = args.model_dir
-    image_out_dir = target_dir+'/visualize-results'
-    text_out_dir = target_dir+'/detection-results'
-    csv_out_dir = target_dir+'/detection_summary.csv'
+    image_out_dir = os.path.join(target_dir+'visualize-results')
+    text_out_dir = os.path.join(target_dir+'detection-results')
+    csv_out_dir = os.path.join(target_dir+'detection_summary.csv')
     device = device
     print ('*'*30)
     print ('Using model type: {}'.format(model_type))
@@ -199,10 +199,10 @@ if __name__ == '__main__':
                                                                      pred_txt_list = [text_out_dir+'/'+os.path.splitext(i)[0]+'.txt' for i in (df['image_name'])],
                                                                      iou_thresh=0.3)
         plot_f1_score(precision, recall, args.model_type, text_out_dir, area, 'f1_score', color='r')
-        plt.savefig(target_dir+'/f1_score.jpg')
+        plt.savefig(os.path.join(target_dir+'f1_score.jpg'))
         plt.figure()
         plot_mAp(precision, recall, mprec, mrec,  args.model_type, area, 'mAp', color='r')
-        plt.savefig(target_dir+'/mAp.jpg')
+        plt.savefig(os.path.join(target_dir+'mAp.jpg'))
     argparse_dict = vars(args)
-    with open(target_dir+'/configs.json','w') as f:
+    with open(os.path.join(target_dir+'configs.json'),'w') as f:
         json.dump(argparse_dict,f,indent=4)
