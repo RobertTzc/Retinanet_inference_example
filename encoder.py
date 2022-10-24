@@ -6,11 +6,12 @@ from tools import meshgrid, box_iou, box_nms, change_box_order
 
 
 class DataEncoder:
-    def __init__(self):
+    def __init__(self,device):
         self.anchor_areas = [32*32., 64*64., 128*128.,256*256.,512*512.]  # p3 -> p7
         self.aspect_ratios = [1/3., 1/1., 3/1.]
         self.scale_ratios = [1., pow(2,1/2.) , 0.3]
         self.anchor_wh = self._get_anchor_wh()
+        self.device = device
 
     def _get_anchor_wh(self):
         '''Compute anchor width and height for each feature map.
@@ -114,7 +115,7 @@ class DataEncoder:
                      else torch.Tensor(input_size)
         anchor_boxes = self._get_anchor_boxes(input_size)
         
-        anchor_boxes=anchor_boxes.cuda()
+        anchor_boxes=anchor_boxes.to(self.device)
         loc_xy = loc_preds[:,:2]
         loc_wh = loc_preds[:,2:]
 
@@ -124,10 +125,10 @@ class DataEncoder:
         
         
         #binary class
-        labels = torch.ones(len(cls_preds)).long().cuda()
+        labels = torch.ones(len(cls_preds)).long().to(self.device)
         score= cls_preds.sigmoid()         # [#anchors,]
         #score,labels=cls_preds.sigmoid().max(1)
-        labels=labels.cuda()
+        labels=labels.to(self.device)
         ids = score > CLS_THRESH
         #
         if ids.sum()==0:
@@ -135,7 +136,7 @@ class DataEncoder:
         else:
             ids = ids.nonzero().squeeze()             # [#obj,]
             keep = box_nms(boxes[ids], score[ids], threshold=NMS_THRESH)
-            keep = keep.cuda()
+            keep = keep.to(self.device)
             if (len(ids.shape)==0):
                 ids = ids.unsqueeze(0)
             return boxes[ids][keep], labels[ids][keep], score[ids][keep]
