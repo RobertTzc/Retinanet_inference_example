@@ -9,7 +9,7 @@ In this demo, some images are included for testing, under folder **example_image
 
 ##  installation
 
-###Clone the repository
+### Clone the repository
 You can either use the cmd window to clone the repo using the following command or you can refer to the link here:https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository
 ```
 git clone https://github.com/RobertTzc/Retinanet_inference_example.git
