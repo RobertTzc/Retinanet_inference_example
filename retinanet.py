@@ -43,17 +43,11 @@ class RetinaNet(nn.Module):
             if isinstance(layer, nn.BatchNorm2d):
                 layer.eval()
 
-def test():
-    img = cv2.imread(path_img, 1)
-    net = RetinaNet()
-    loc_preds, cls_preds = net(Variable(torch.randn(2,3,224,224)))
-    print(loc_preds.size())
-    print(cls_preds.size())
+
 import numpy as np
 from PIL import Image
 def img_transform(img_in, transform):
-    """
-    将img进行预处理，并转换成模型输入所需的形式—— B*C*H*W
+    """B*C*H*W
     :param img_roi: np.array
     :return:
     """

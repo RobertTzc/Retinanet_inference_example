@@ -14,6 +14,7 @@ import numpy as np
 import time
 import json
 from pyexiv2 import Image
+from utils import read_LatLotAlt
 from WaterFowlTools.utils import py_cpu_nms, get_image_taking_conditions, get_sub_image
 warnings.filterwarnings("ignore")
 
@@ -35,7 +36,6 @@ def get_GSD(altitude,camera_type='Pro2', ref_altitude=60):
         ref_GSD = (13.2 * ref_altitude)/(10.26*5472)
         GSD = (13.2 * altitude)/(10.26*5472)
     return GSD, ref_GSD
-
 
 def inference_mega_image_Retinanet(image_list, model_dir, image_out_dir,text_out_dir, visualize,scaleByAltitude=True, defaultAltitude=[],**kwargs):
     if (kwargs['device']!=torch.device('cuda')):
@@ -105,10 +105,18 @@ def inference_mega_image_Retinanet(image_list, model_dir, image_out_dir,text_out
         mega_image = cv2.cvtColor(mega_image, cv2.COLOR_RGB2BGR)
         if (visualize):
             cv2.imwrite(os.path.join(image_out_dir,os.path.basename(image_dir)), mega_image)
+        try:
+            re = read_LatLotAlt(image_dir)
+        except:
+            re = {'latitude':0.0,
+                  'longitude':0.0,
+                  'altitude':0.0}
         record.append([os.path.basename(image_dir),kwargs['date_list'][idxs],kwargs['location_list'][idxs],
-                       kwargs['lat_list'][idxs],kwargs['lot_list'][idxs],defaultAltitude[idxs],num_bird,time.time()-start_time])
+                       kwargs['lat_list'][idxs],kwargs['lot_list'][idxs],defaultAltitude[idxs],
+                       re['latitude'],re['longitude'],re['altitude'],
+                       num_bird,time.time()-start_time])
     record = pd.DataFrame(record)
-    record.to_csv(kwargs['csv_out_dir'],header = ['image_name','date','location','latitude','longitude','altitude','num_birds','time_cost'],index = True)
+    record.to_csv(kwargs['csv_out_dir'],header = ['image_name','date','location','latitude','longitude','altitude','latitude_meta','longitude_meta','altitude_meta','num_birds','time_cost'],index = True)
     
         
 
@@ -138,8 +146,6 @@ def get_args():
     parser.add_argument('--evaluate',type = bool,
                         help = 'whether to evaluate',
                         default = False)
-    parser.add_argument('--ext',type = str,default = 'JPG',
-                    help = 'extension of the image name without . ',)
     args = parser.parse_args()
     
     #if the image_root input is with extension(*.JPG) wrap into list
@@ -181,10 +187,10 @@ if __name__ == '__main__':
     print ('*'*30)
     os.makedirs(image_out_dir, exist_ok=True)
     os.makedirs(text_out_dir, exist_ok=True)
-    # inference_mega_image_Retinanet(
-	# 	image_list=image_list, model_dir = model_dir, image_out_dir = image_out_dir,text_out_dir = text_out_dir,csv_out_dir = csv_out_dir,
-	# 	scaleByAltitude=True, defaultAltitude=altitude_list,date_list = date_list,location_list =location_list,
-    #     lat_list = lat_list,lot_list = lot_list,visualize = args.visualize,device = device)
+    inference_mega_image_Retinanet(
+		image_list=image_list, model_dir = model_dir, image_out_dir = image_out_dir,text_out_dir = text_out_dir,csv_out_dir = csv_out_dir,
+		scaleByAltitude=True, defaultAltitude=altitude_list,date_list = date_list,location_list =location_list,
+        lat_list = lat_list,lot_list = lot_list,visualize = args.visualize,device = device)
     if (args.evaluate):
         from WaterFowlTools.mAp import mAp_calculate,plot_f1_score,plot_mAp
         import matplotlib.pyplot as plt

@@ -92,4 +92,10 @@ Result folder
 ├── f1_score.jpg    #if apply evaluation
 └── mAP.jpg         #if apply evaluation
 
+detection_summary contains three types of data:
+Description data includes input info of the image info such as image_name, date, lat, lot, altitude
+Meta data includes meta data read from the image Meta data(if appliable)
+Detection data: includes num of birds detected and time spent inferencing that image(include visualization)
+
+
 ```
