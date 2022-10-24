@@ -60,7 +60,7 @@ required are values critical to the program and optionals are description data f
 Once you have the input file ready and in correct virtual env, you can use the file **inference_image_list.py** to start inference the images:
 quick example:
 ```
-python inference_image_list.py --model_dir ./checkpoint/Bird_A/final_model.pkl --model_type Bird_A --image_root ./example_images/Bird_A --csv_dir ./example_images/Bird_A/image_info.csv --evaluate true --ext JPG --visualize true
+python inference_image_list.py --model_dir ./checkpoint/Bird_A/final_model.pkl --model_type Bird_A --image_root ./example_images/Bird_A --csv_dir ./example_images/Bird_A/image_info.csv --evaluate true --ext JPG --visualize true --out_dir ./Result/Bird_A
 ```
 Avilable commands are:
 ```
@@ -69,7 +69,6 @@ Avilable commands are:
 --image_root: specify where the iunput images stores
 --csv_dir: a csv file specifiy where the image info stores, usually was same place with the image_root dir.
 --out_dir: where the output file will be generated, by default it will create 'Result' folder under current directory.
---ext: specify what the extension of the file will be, default is JPG, common ext are jpg,png,JPG
 --visual: True/False value specify whether we want to have visualization on output, default is True
 --evaluate: whether we want to evaluate the result, this can only be done when the input file comes with groundTruth file, default is False
 ```
