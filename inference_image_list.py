@@ -84,7 +84,7 @@ def inference_mega_image_Retinanet(image_list, model_dir, image_out_dir,text_out
                     score = scores.cpu().numpy()[idx]
                     bbox_list.append([coor_list[index][1]+ratio*x1, coor_list[index][0]+ratio*y1,
                                      coor_list[index][1]+ratio*x2, coor_list[index][0]+ratio*y2, score])
-        txt_name = image_dir.split('/')[-1].split('.')[0]+'.txt'
+        txt_name = os.path.basename(image_dir).split('.')[0]+'.txt'
         with open(os.path.join(text_out_dir,txt_name), 'w') as f:
             if (len(bbox_list) != 0):
                 bbox_list = np.asarray([box for box in bbox_list])
