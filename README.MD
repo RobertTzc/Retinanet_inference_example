@@ -7,7 +7,7 @@ Support both Windows system and Linux system, can be used with/without cuda envi
 
 In this demo, some images are included for testing, under folder **example_images** contains different images for each corresponding pretained model by their folder name(Bird_A,Bird_B etc), along with the GT file attatched for later evaluation.
 
-##  installation
+## Installation
 
 ### Clone the repository
 You can either use the cmd window to clone the repo using the following command or you can refer to the link here:https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository
@@ -97,5 +97,7 @@ Description data includes input info of the image info such as image_name, date,
 Meta data includes meta data read from the image Meta data(if appliable)
 Detection data: includes num of birds detected and time spent inferencing that image(include visualization)
 
-
+each txt file under detection_results file contains detected bounding box in the following format:
+  category,confidence score, x1,y2,x2,y2
+Sorted in condifence descending order.
 ```
