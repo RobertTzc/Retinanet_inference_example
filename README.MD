@@ -20,7 +20,7 @@ conda create -n torch_py3 python==3.8
 ```
 once env is created use, eg:
 ```
-conda activaate torrch_py3
+conda activaate torch_py3
 ```
 once you have activated the env, make sure you are under the env you created and run the following commands:
 ```
