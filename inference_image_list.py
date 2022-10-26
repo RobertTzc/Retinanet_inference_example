@@ -112,39 +112,48 @@ def inference_mega_image_Retinanet(image_list, model_dir, image_out_dir,text_out
                   'longitude':0.0,
                   'altitude':0.0}
         record.append([os.path.basename(image_dir),kwargs['date_list'][idxs],kwargs['location_list'][idxs],
-                       kwargs['lat_list'][idxs],kwargs['lot_list'][idxs],defaultAltitude[idxs],
-                       re['latitude'],re['longitude'],re['altitude'],
+                       defaultAltitude[idxs],re['latitude'],re['longitude'],re['altitude'],
                        num_bird,time.time()-start_time])
     record = pd.DataFrame(record)
-    record.to_csv(kwargs['csv_out_dir'],header = ['image_name','date','location','latitude','longitude','altitude','latitude_meta','longitude_meta','altitude_meta','num_birds','time_cost'],index = True)
+    record.to_csv(kwargs['csv_out_dir'],header = ['image_name','date','location','altitude','latitude_meta','longitude_meta','altitude_meta','num_birds','time_cost'],index = True)
     
         
 
 import argparse
 import sys
+import glob
 import pandas as pd
 def get_args():
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('--model_dir', type = str,
-                        help =' the directory of the model',
+                        help =' the directory of the model,default using the Bird_D model included',
                         default='./checkpoint/Bird_D/final_model.pkl')
     parser.add_argument('--model_type', type = str,
-                        help =' the type of the model',
-                        default='Bird_B')
+                        help =' the type of the model,default type used is Bird_D',
+                        default='Bird_D')
     # parser.add_argument('--altitude_list',nargs='+',
     #                     help = 'altitude list of the input image')
-    parser.add_argument('--csv_dir',type = str,
-                         help = 'csv_file of the input list')
+    # parser.add_argument('--csv_dir',type = str,
+    #                      help = 'csv_file of the input list')
     parser.add_argument('--image_root',type = str,
                         help = 'The root dir where image are stores')
+    parser.add_argument('--image_ext',type = str, default = 'JPG',
+                        help = 'the extension of the image(without dot), default is JPG')
+    parser.add_argument('--image_altitude',type = int, default = 90,
+                        help = 'the altitude of the taken image, default is set to be 90')
+    parser.add_argument('--image_location',type = str, default = 'No_Where',
+                        help = 'the location of the taken image, default is set to be 90')
+    parser.add_argument('--image_date',type = str, default = '2022-10-26',
+                        help = 'the date of the taken image, default is set to be 2022-10-26')
+    
     parser.add_argument('--out_dir',type = str,
-                        help = 'where the output will be generated',
+                        help = 'where the output will be generated,default is ./results',
                         default = './results')
     parser.add_argument('--visualize',type = bool,
-                        help = 'whether to have visualize',
+                        help = 'whether to have visualization stored to result, default is True',
                         default = True)
     parser.add_argument('--evaluate',type = bool,
-                        help = 'whether to evaluate',
+                        help = 'whether to evaluate the reslt,default is False',
                         default = False)
     args = parser.parse_args()
     
@@ -155,25 +164,18 @@ def get_args():
 if __name__ == '__main__':
     args = get_args()
     model_type = args.model_type
-    df = pd.read_csv(args.csv_dir)
-    image_list = [os.path.join(args.image_root,i) for i in df['image_name']]
+    image_list = glob.glob(os.path.join(args.image_root,'*.{}'.format(args.image_ext)))
     print (image_list)
 
-    altitude_list = df['altitude']
-    location_list = df['location']
-    lat_list = df['latitude']
-    lot_list = df['longitude']
-    date_list = df['date']
+    altitude_list = [args.image_altitude for _ in image_list]
     
-    print(altitude_list)
-    # if (dataset_folder=='Bird_A'):
-    #     altitude_list = [150,80,70,50] #Bird A height info stores inside the file names, here we just maunally input it
-    # else:
-    #     altitude_list = 90 #if meta data is not avaliable, we use 90 meters for all images
+    location_list = [args.image_location for _ in image_list]
+    date_list = [args.image_date for _ in image_list]
+    
     target_dir = args.out_dir
     model_dir = args.model_dir
-    image_out_dir = os.path.join(target_dir+'visualize-results')
-    text_out_dir = os.path.join(target_dir+'detection-results')
+    image_out_dir = os.path.join(target_dir,'visualize-results')
+    text_out_dir = os.path.join(target_dir,'detection-results')
     csv_out_dir = os.path.join(target_dir,'detection_summary.csv')
     device = device
     print ('*'*30)
@@ -190,7 +192,7 @@ if __name__ == '__main__':
     inference_mega_image_Retinanet(
 		image_list=image_list, model_dir = model_dir, image_out_dir = image_out_dir,text_out_dir = text_out_dir,csv_out_dir = csv_out_dir,
 		scaleByAltitude=True, defaultAltitude=altitude_list,date_list = date_list,location_list =location_list,
-        lat_list = lat_list,lot_list = lot_list,visualize = args.visualize,device = device)
+        visualize = args.visualize,device = device)
     if (args.evaluate):
         from WaterFowlTools.mAp import mAp_calculate,plot_f1_score,plot_mAp
         import matplotlib.pyplot as plt
@@ -199,10 +201,10 @@ if __name__ == '__main__':
                                                                      pred_txt_list = [text_out_dir+'/'+os.path.splitext(i)[0]+'.txt' for i in (df['image_name'])],
                                                                      iou_thresh=0.3)
         plot_f1_score(precision, recall, args.model_type, text_out_dir, area, 'f1_score', color='r')
-        plt.savefig(os.path.join(target_dir+'f1_score.jpg'))
+        plt.savefig(os.path.join(target_dir,'f1_score.jpg'))
         plt.figure()
         plot_mAp(precision, recall, mprec, mrec,  args.model_type, area, 'mAp', color='r')
-        plt.savefig(os.path.join(target_dir+'mAp.jpg'))
+        plt.savefig(os.path.join(target_dir,'mAp.jpg'))
     argparse_dict = vars(args)
     with open(os.path.join(target_dir+'configs.json'),'w') as f:
         json.dump(argparse_dict,f,indent=4)
