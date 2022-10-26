@@ -174,7 +174,7 @@ if __name__ == '__main__':
     model_dir = args.model_dir
     image_out_dir = os.path.join(target_dir+'visualize-results')
     text_out_dir = os.path.join(target_dir+'detection-results')
-    csv_out_dir = os.path.join(target_dir+'detection_summary.csv')
+    csv_out_dir = os.path.join(target_dir,'detection_summary.csv')
     device = device
     print ('*'*30)
     print ('Using model type: {}'.format(model_type))
