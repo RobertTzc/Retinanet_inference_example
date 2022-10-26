@@ -3,6 +3,8 @@
 This code is an demo only on how to apply retinanet onto the Waterfowl dataset. In this demo contains pretrained model named as Bird_A, Bird_B, Bird_C, Bird_D, Bird_E  avaialble under folder **checkpoint** please download and unzip the checkpoint folder content using link here https://drive.google.com/file/d/1ZXva0sP5h7JiaUmU4mWpb5yrjwr7B1ai/view?usp=sharing and place the downloaded file inside the checkpoint folder.
 ## System requirements
 Support both Windows system and Linux system, can be used with/without cuda environement.
+Tested in Ubuntu 18 with python=3.8,3.10, Windows with python=3.10
+
 ## Example images
 
 In this demo, some images are included for testing, under folder **example_images** contains different images for each corresponding pretained model by their folder name(Bird_A,Bird_B etc), along with the GT file attatched for later evaluation.
@@ -14,13 +16,15 @@ You can either use the cmd window to clone the repo using the following command 
 ```
 git clone https://github.com/RobertTzc/Retinanet_inference_example.git
 ```
+### Virtual env
+
 Virtual env is recommended to be used in order to install the package, here Anaconda is recommended to be used, link to the Anaconda https://www.anaconda.com/, once you have installed the Anaconda , refer here to create you virtual env https://conda.io/projects/conda/en/latest/user-guide/getting-started.html. It is recommend to create the env along with python 3.8, demo cmd is here:
 ```
 conda create -n torch_py3 python==3.8
 ```
 once env is created use, eg:
 ```
-conda activaate torch_py3
+conda activate torch_py3
 ```
 once you have activated the env, make sure you are under the env you created and run the following commands:
 ```
@@ -35,6 +39,26 @@ pip install packaging
 pip install kiwisolver
 pip install cycler
 ```
+### Direct installation
+Packages can also be installed with direct pip :
+
+```
+For windows:
+  pip3 install torch torchvision torchaudio
+For Linux:
+  pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
+pip install opencv-contrib-python
+pip install Pillow==6.1
+pip install pandas
+pip install pyexiv2
+pip install matplotlib
+pip install -i https://test.pypi.org/simple/ WaterFowlTools
+pip install packaging
+pip install kiwisolver
+pip install cycler
+```
+
+
 ## input format
 This script requires a speical format of iunput describes below
 ```
