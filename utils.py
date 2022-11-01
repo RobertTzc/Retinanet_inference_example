@@ -9,5 +9,3 @@ def read_LatLotAlt(image_dir):
     re['altitude'] = float(xmp_info['Xmp.drone-dji.RelativeAltitude'][1:])
     #print (image_name,xmp_info['Xmp.drone-dji.RelativeAltitude'])
     return re
-info = read_LatLotAlt('/home/zt253/Models/Retinanet_inference_example/example_images/Bird_B/DJI_0328.JPG')
-print (info)
