@@ -1,3 +1,4 @@
+from black import E
 import cv2
 import torch
 import torchvision.transforms as transforms
@@ -13,8 +14,14 @@ from PIL import Image
 import numpy as np
 import time
 import json
+import sys
+import glob
+import pandas as pd
+from args import *
 from pyexiv2 import Image
-from utils import read_LatLotAlt
+from utils import read_LatLotAlt,get_GSD
+from WaterFowlTools.mAp import mAp_calculate,plot_f1_score,plot_mAp
+import matplotlib.pyplot as plt
 from WaterFowlTools.utils import py_cpu_nms, get_image_taking_conditions, get_sub_image
 warnings.filterwarnings("ignore")
 
@@ -23,21 +30,30 @@ transform = transforms.Compose([
     transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
 ])
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model_conf_threshold = {'Bird_A':0.2,'Bird_B':0.2,'Bird_C':0.2,'Bird_D':0.2,'Bird_E':0.2,'Bird_drone':0.2}
+model_extension = {'Bird_drone':{40:('_alt_30',30),90:('_alt_90',90)}}
 
-def get_GSD(altitude,camera_type='Pro2', ref_altitude=60):
-
-    if (camera_type == 'Pro2'):
-        ref_GSD = (13.2 * ref_altitude)/(10.26*5472)
-        GSD = (13.2 * altitude)/(10.26*5472)
-    elif (camera_type == 'Air2'):
-        ref_GSD = (6.4*ref_altitude)/(4.3*8000)
-        GSD = (6.4*altitude)/(4.3*8000)
+def get_model_conf_threshold (model_type):
+    if (model_type in model_conf_threshold):
+        return model_conf_threshold[model_type]
     else:
-        ref_GSD = (13.2 * ref_altitude)/(10.26*5472)
-        GSD = (13.2 * altitude)/(10.26*5472)
-    return GSD, ref_GSD
+        return 0.3
 
+def get_model_extension(model_type,model_dir,defaultaltitude):
+    if(model_type in model_extension):
+        for altitude_thresh in model_extension:
+            if (altitude_thresh>=defaultaltitude):
+                model_dir = model_dir.replace('.pth',model_extension[altitude_thresh][0]+'.pth')
+                return model_dir,model_extension[altitude_thresh][1]
+        model_dir = model_dir.replace('.pth',model_extension[max(model_extension.keys())][0]+'.pth')
+        return model_dir,model_extension[max(model_extension.keys())][1]
+    else:
+        return model_dir,90
+     
 def inference_mega_image_Retinanet(image_list, model_dir, image_out_dir,text_out_dir, visualize,scaleByAltitude=True, defaultAltitude=[],**kwargs):
+    model_type = kwargs['model_type']
+    conf_thresh = get_model_conf_threshold(model_type=model_type)
+    model_dir,ref_altitude = get_model_extension(model_type=model_type,model_dir=model_dir,defaultaltitude=defaultAltitude[0])
     if (kwargs['device']!=torch.device('cuda')):
         print ('loading CPU mode')
         device = torch.device('cpu')
@@ -52,14 +68,14 @@ def inference_mega_image_Retinanet(image_list, model_dir, image_out_dir,text_out
     record = []
     for idxs, image_dir in (enumerate(image_list)):
         start_time = time.time()
-        try:
-            altitude = get_image_taking_conditions(image_dir)['altitude']
-            print ('Processing image name: {} with Altitude of {}'.format(os.path.basename(image_dir),altitude))
-        except:
-            altitude = int(defaultAltitude[idxs])
-            print ('Using default altitude for: {} with Altitude of {}'.format(os.path.basename(image_dir),altitude))
+        # try:
+        #     altitude = get_image_taking_conditions(image_dir)['altitude']
+        #     print ('Processing image name: {} with Altitude of {}'.format(os.path.basename(image_dir),altitude))
+        # except:
+        altitude = int(defaultAltitude[idxs])
+        print ('Using default altitude for: {} with Altitude of {}'.format(os.path.basename(image_dir),altitude))
         if scaleByAltitude:
-            GSD,ref_GSD = get_GSD(altitude,camera_type='Pro2', ref_altitude=90) # Mavic2 Pro GSD equations
+            GSD,ref_GSD = get_GSD(altitude,camera_type='Pro2', ref_altitude=ref_altitude) # Mavic2 Pro GSD equations
             ratio = 1.0*ref_GSD/GSD
         else:
             ratio = 1.0
@@ -76,7 +92,7 @@ def inference_mega_image_Retinanet(image_list, model_dir, image_out_dir,text_out
                 inputs = inputs.unsqueeze(0).to(kwargs['device'])
                 loc_preds, cls_preds = net(inputs)
                 boxes, labels, scores = encoder.decode(
-                    loc_preds.data.squeeze(), cls_preds.data.squeeze(), 512, CLS_THRESH = 0.2,NMS_THRESH = 0.5)
+                    loc_preds.data.squeeze(), cls_preds.data.squeeze(), 512, CLS_THRESH = conf_thresh,NMS_THRESH = 0.5)
             if (len(boxes.shape) != 1):
                 for idx in range(boxes.shape[0]):
                     x1, y1, x2, y2 = list(
@@ -97,7 +113,7 @@ def inference_mega_image_Retinanet(image_list, model_dir, image_out_dir,text_out
                 for box in selected_bbox:
                     f.writelines('bird {} {} {} {} {}\n'.format(
                         box[4], int(box[0]), int(box[1]), int(box[2]), int(box[3])))
-                    if (visualize):#Only display conf Thresh>0.3 bbox
+                    if (visualize):
                         cv2.putText(mega_image, str(round(box[4], 2)), (int(box[0]), int(
                             box[1])), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
                         cv2.rectangle(mega_image, (int(box[0]), int(
@@ -113,60 +129,19 @@ def inference_mega_image_Retinanet(image_list, model_dir, image_out_dir,text_out
                   'altitude':0.0}
         record.append([os.path.basename(image_dir),kwargs['date_list'][idxs],kwargs['location_list'][idxs],
                        defaultAltitude[idxs],re['latitude'],re['longitude'],re['altitude'],
-                       num_bird,time.time()-start_time])
+                       num_bird,round(time.time()-start_time,2)])
     record = pd.DataFrame(record)
     record.to_csv(kwargs['csv_out_dir'],header = ['image_name','date','location','altitude','latitude_meta','longitude_meta','altitude_meta','num_birds','time_cost'],index = True)
     
         
 
-import argparse
-import sys
-import glob
-import pandas as pd
-def get_args():
-    parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('--model_dir', type = str,
-                        help =' the directory of the model,default using the Bird_D model included',
-                        default='./checkpoint/Bird_D/final_model.pkl')
-    parser.add_argument('--model_type', type = str,
-                        help =' the type of the model,default type used is Bird_D',
-                        default='Bird_D')
-    # parser.add_argument('--altitude_list',nargs='+',
-    #                     help = 'altitude list of the input image')
-    # parser.add_argument('--csv_dir',type = str,
-    #                      help = 'csv_file of the input list')
-    parser.add_argument('--image_root',type = str,
-                        help = 'The root dir where image are stores')
-    parser.add_argument('--image_ext',type = str, default = 'JPG',
-                        help = 'the extension of the image(without dot), default is JPG')
-    parser.add_argument('--image_altitude',type = int, default = 90,
-                        help = 'the altitude of the taken image, default is set to be 90')
-    parser.add_argument('--image_location',type = str, default = 'No_Where',
-                        help = 'the location of the taken image, default is set to be 90')
-    parser.add_argument('--image_date',type = str, default = '2022-10-26',
-                        help = 'the date of the taken image, default is set to be 2022-10-26')
-    parser.add_argument('--use_altitude',type = bool, default = True,
-                        help = 'whether to use altitude to scale the image, default is True')
-    
-    parser.add_argument('--out_dir',type = str,
-                        help = 'where the output will be generated,default is ./results',
-                        default = './results')
-    parser.add_argument('--visualize',type = bool,
-                        help = 'whether to have visualization stored to result, default is True',
-                        default = True)
-    parser.add_argument('--evaluate',type = bool,
-                        help = 'whether to evaluate the reslt,default is False',
-                        default = False)
-    args = parser.parse_args()
-    
-    #if the image_root input is with extension(*.JPG) wrap into list
-    #else fetch the list of image
-    return args
+
 
 if __name__ == '__main__':
     args = get_args()
     model_type = args.model_type
     image_list = glob.glob(os.path.join(args.image_root,'*.{}'.format(args.image_ext)))
+    image_name_list = [os.path.basename(i) for i in image_list]
     print (image_list)
 
     altitude_list = [args.image_altitude for _ in image_list]
@@ -193,20 +168,25 @@ if __name__ == '__main__':
     os.makedirs(text_out_dir, exist_ok=True)
     inference_mega_image_Retinanet(
 		image_list=image_list, model_dir = model_dir, image_out_dir = image_out_dir,text_out_dir = text_out_dir,csv_out_dir = csv_out_dir,
-		scaleByAltitude=True, defaultAltitude=altitude_list,date_list = date_list,location_list =location_list,
-        visualize = args.visualize,device = device)
+		scaleByAltitude=args.use_altitude, defaultAltitude=altitude_list,date_list = date_list,location_list =location_list,
+        visualize = args.visualize,device = device,model_type = model_type)
     if (args.evaluate):
-        from WaterFowlTools.mAp import mAp_calculate,plot_f1_score,plot_mAp
-        import matplotlib.pyplot as plt
-        precision, recall, sum_AP, mrec, mprec, area = mAp_calculate(image_name_list = (df['image_name']), 
-                                                                     gt_txt_list=[os.path.splitext(i)[0]+'.txt' for i in image_list],
-                                                                     pred_txt_list = [text_out_dir+'/'+os.path.splitext(i)[0]+'.txt' for i in (df['image_name'])],
-                                                                     iou_thresh=0.3)
-        plot_f1_score(precision, recall, args.model_type, text_out_dir, area, 'f1_score', color='r')
-        plt.savefig(os.path.join(target_dir,'f1_score.jpg'))
-        plt.figure()
-        plot_mAp(precision, recall, mprec, mrec,  args.model_type, area, 'mAp', color='r')
-        plt.savefig(os.path.join(target_dir,'mAp.jpg'))
+        try:
+            precision, recall, sum_AP, mrec, mprec, area = mAp_calculate(image_name_list = image_name_list, 
+                                                                        gt_txt_list=[os.path.splitext(i)[0]+'.txt' for i in image_list],
+                                                                        pred_txt_list = [text_out_dir+'/'+os.path.splitext(i)[0]+'.txt' for i in image_name_list],
+                                                                        iou_thresh=0.3)
+            plot_f1_score(precision, recall, args.model_type, text_out_dir, area, 'f1_score', color='r')
+            plt.legend()
+            plt.savefig(os.path.join(target_dir,'f1_score.jpg'))
+            plt.figure()
+            plot_mAp(precision, recall, mprec, mrec,  args.model_type, area, 'mAp', color='r')
+            plt.legend()
+            plt.savefig(os.path.join(target_dir,'mAp.jpg'))
+            print('Evaluation completed, proceed to wrap result')
+        except:
+            print('Failed to evaluate, Skipped')
     argparse_dict = vars(args)
-    with open(os.path.join(target_dir+'configs.json'),'w') as f:
+    with open(os.path.join(target_dir,'configs.json'),'w') as f:
         json.dump(argparse_dict,f,indent=4)
+    
