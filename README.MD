@@ -144,8 +144,8 @@ Result folder
 detection_summary contains three types of data:
 Description data includes input info of the image info such as image_name, date,altitude
 Meta data includes meta data read from the image Meta data(if appliable)
-Sample results are shown below:
-![Screenshot from 2022-11-01 15-59-13](https://user-images.githubusercontent.com/71574752/199339795-6a7fae6c-fc6f-443e-a95c-dbe99f88e324.png)
+Sample results are shown below:![Screenshot from 2022-11-01 15-59-13](https://user-images.githubusercontent.com/71574752/199339950-dcf57c10-8f1a-43e1-ae56-26e2b6b9e21f.png)
+
 Detection data: includes num of birds detected and time spent inferencing that image(include visualization)
 
 each txt file under detection_results file contains detected bounding box in the following format:
