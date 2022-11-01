@@ -81,11 +81,31 @@ Image_folder (eg Bird_A)
 
 ## Run the Scripts:
 Once you have the input file ready and in correct virtual env, you can use the file **inference_image_list.py** to start inference the images:
-quick example:
+quick example(full command):
 ```
-python inference_image_list.py --model_dir ./checkpoint/Bird_A/final_model.pkl --model_type Bird_A --image_root ./example_images/Bird_A  --evaluate true --image_ext JPG --visualize true --out_dir ./Result/Bird_A
+python inference_image_list.py \
+--model_dir ./checkpoint/Bird_A/final_model.pkl \
+--model_type Bird_A \
+--image_root ./example_images/Bird_A \
+--image_ext jpg \
+--image_altitude 90 \
+--use_altitude true \
+--image_date 2022-11-01 \
+--image_location University_of_Missouri \
+--out_dir ./Result/Bird_A \
+--evaluate true \
+--visualize true 
 ```
-Avilable commands are:
+quick example(easy command):
+```
+python inference_image_list.py \
+--model_dir ./checkpoint/Bird_A/final_model.pkl \
+--model_type Bird_A \
+--image_root ./example_images/Bird_A \
+--out_dir ./Result/Bird_A
+```
+
+The description of each command are as follows:
 ```
 --model_dir: directory of the model, in this demo is where the checkpoint model locates
 --model_type: we include some models that are specifically trained on different types of scenerio, in this demo for most cases, it will --simply match the model_dir type.
