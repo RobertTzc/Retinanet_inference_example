@@ -145,8 +145,8 @@ def get_args():
                         help = 'the location of the taken image, default is set to be 90')
     parser.add_argument('--image_date',type = str, default = '2022-10-26',
                         help = 'the date of the taken image, default is set to be 2022-10-26')
-    parser.add_argument('--use_height',type = bool, default = True,
-                        help = 'whether to use height to scale the image, default is True')
+    parser.add_argument('--use_altitude',type = bool, default = True,
+                        help = 'whether to use altitude to scale the image, default is True')
     
     parser.add_argument('--out_dir',type = str,
                         help = 'where the output will be generated,default is ./results',
