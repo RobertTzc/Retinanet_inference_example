@@ -131,7 +131,7 @@ def inference_mega_image_Retinanet(image_list, model_dir, image_out_dir,text_out
                        defaultAltitude[idxs],re['latitude'],re['longitude'],re['altitude'],
                        num_bird,round(time.time()-start_time,2)])
     record = pd.DataFrame(record)
-    record.to_csv(kwargs['csv_out_dir'],header = ['image_name','date','location','altitude','latitude_meta','longitude_meta','altitude_meta','num_birds','time_cost'],index = True)
+    record.to_csv(kwargs['csv_out_dir'],header = ['image_name','date','location','altitude','latitude_meta','longitude_meta','altitude_meta','num_birds','time_spent(sec)'],index = True)
     
         
 
