@@ -142,8 +142,10 @@ Result folder
 └── mAP.jpg         #if apply evaluation
 
 detection_summary contains three types of data:
-Description data includes input info of the image info such as image_name, date, lat, lot, altitude
+Description data includes input info of the image info such as image_name, date,altitude
 Meta data includes meta data read from the image Meta data(if appliable)
+Sample results are shown below:
+![Screenshot from 2022-11-01 15-59-13](https://user-images.githubusercontent.com/71574752/199339795-6a7fae6c-fc6f-443e-a95c-dbe99f88e324.png)
 Detection data: includes num of birds detected and time spent inferencing that image(include visualization)
 
 each txt file under detection_results file contains detected bounding box in the following format:
