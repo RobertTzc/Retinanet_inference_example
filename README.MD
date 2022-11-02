@@ -35,7 +35,7 @@ once you have activated the env, make sure you are under the env you created and
 ```
 conda install pytorch torchvision torchaudio cpuonly -c pytorch
 pip install opencv-contrib-python
-pip install Pillow==6.1 #greater than this shall be fine
+pip install Pillow==6.1 #6.2 also work
 pip install pandas
 pip install pyexiv2
 pip install matplotlib
@@ -54,7 +54,7 @@ For Linux:
   pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
 The rest are identical on both systems:
 pip install opencv-contrib-python
-pip install Pillow==6.1 #greater than this shall be fine
+pip install Pillow==6.1 #6.2 also work
 pip install pandas
 pip install pyexiv2
 pip install matplotlib
