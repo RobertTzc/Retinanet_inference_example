@@ -1,4 +1,3 @@
-from black import E
 import cv2
 import torch
 import torchvision.transforms as transforms
@@ -101,6 +100,7 @@ def inference_mega_image_Retinanet(image_list, model_dir, image_out_dir,text_out
                     bbox_list.append([coor_list[index][1]+ratio*x1, coor_list[index][0]+ratio*y1,
                                      coor_list[index][1]+ratio*x2, coor_list[index][0]+ratio*y2, score])
         txt_name = os.path.basename(image_dir).split('.')[0]+'.txt'
+        num_bird = 0
         with open(os.path.join(text_out_dir,txt_name), 'w') as f:
             if (len(bbox_list) != 0):
                 bbox_list = np.asarray([box for box in bbox_list])
@@ -189,4 +189,4 @@ if __name__ == '__main__':
     argparse_dict = vars(args)
     with open(os.path.join(target_dir,'configs.json'),'w') as f:
         json.dump(argparse_dict,f,indent=4)
-    
+     
