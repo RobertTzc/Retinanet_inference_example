@@ -87,7 +87,7 @@ python inference_image_list.py \
 --model_dir ./checkpoint/Bird_A/final_model.pkl \
 --model_type Bird_A \
 --image_root ./example_images/Bird_A \
---image_ext jpg \
+--image_ext JPG \
 --image_altitude 90 \
 --use_altitude true \
 --image_date 2022-11-01 \
