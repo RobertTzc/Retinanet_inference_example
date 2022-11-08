@@ -96,6 +96,21 @@ python inference_image_list.py \
 --evaluate true \
 --visualize true 
 ```
+For Bird_drone type model, sample command are:
+```
+python inference_image_list.py \
+--model_dir ./checkpoint/Bird_drone/final_model.pkl \
+--model_type Bird_drone \
+--image_root ./example_images/Bird_drone/15m \
+--image_ext jpg \
+--image_altitude 15 \
+--use_altitude true \
+--image_date 2022-11-01 \
+--image_location University_of_Missouri \
+--out_dir ./Result/Bird_drone_15 \
+--evaluate true \
+--visualize true 
+```
 quick example(easy command):
 ```
 python inference_image_list.py \

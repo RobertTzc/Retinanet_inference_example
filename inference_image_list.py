@@ -40,12 +40,14 @@ def get_model_conf_threshold (model_type):
 
 def get_model_extension(model_type,model_dir,defaultaltitude):
     if(model_type in model_extension):
-        for altitude_thresh in model_extension[model_type]:
+        model_ext = model_extension[model_type]
+        for altitude_thresh in model_ext:
             if (altitude_thresh>=defaultaltitude):
-                model_dir = model_dir.replace('.pth',model_extension[altitude_thresh][0]+'.pth')
-                return model_dir,model_extension[altitude_thresh][1]
-        model_dir = model_dir.replace('.pth',model_extension[max(model_extension.keys())][0]+'.pth')
-        return model_dir,model_extension[max(model_extension.keys())][1]
+                ref_altitude = model_ext[altitude_thresh][1]
+                model_dir = model_dir.replace('.pkl',model_ext[altitude_thresh][0]+'.pkl')
+                return model_dir,ref_altitude
+        model_dir = model_dir.replace('.pkl',model_ext[max(model_ext.keys())][0]+'.pkl')
+        return model_dir,model_ext[max(model_ext.keys())][1]
     else:
         return model_dir,90
      
@@ -53,6 +55,7 @@ def inference_mega_image_Retinanet(image_list, model_dir, image_out_dir,text_out
     model_type = kwargs['model_type']
     conf_thresh = get_model_conf_threshold(model_type=model_type)
     model_dir,ref_altitude = get_model_extension(model_type=model_type,model_dir=model_dir,defaultaltitude=defaultAltitude[0])
+    print (model_dir)
     if (kwargs['device']!=torch.device('cuda')):
         print ('loading CPU mode')
         device = torch.device('cpu')
@@ -101,7 +104,7 @@ def inference_mega_image_Retinanet(image_list, model_dir, image_out_dir,text_out
                                      coor_list[index][1]+ratio*x2, coor_list[index][0]+ratio*y2, score])
         txt_name = os.path.basename(image_dir).split('.')[0]+'.txt'
         num_bird = 0
-	with open(os.path.join(text_out_dir,txt_name), 'w') as f:
+        with open(os.path.join(text_out_dir,txt_name), 'w') as f:
             if (len(bbox_list) != 0):
                 bbox_list = np.asarray([box for box in bbox_list])
                 box_idx = py_cpu_nms(bbox_list, 0.25)
