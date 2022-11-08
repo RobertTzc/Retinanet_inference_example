@@ -29,7 +29,7 @@ transform = transforms.Compose([
     transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
 ])
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model_conf_threshold = {'Bird_A':0.2,'Bird_B':0.2,'Bird_C':0.2,'Bird_D':0.2,'Bird_E':0.2,'Bird_drone':0.2}
+model_conf_threshold = {'Bird_A':0.2,'Bird_B':0.2,'Bird_C':0.2,'Bird_D':0.2,'Bird_E':0.2,'Bird_drone':0.22}
 model_extension = {'Bird_drone':{40:('_alt_30',30),90:('_alt_90',90)}}
 
 def get_model_conf_threshold (model_type):
@@ -55,7 +55,7 @@ def inference_mega_image_Retinanet(image_list, model_dir, image_out_dir,text_out
     model_type = kwargs['model_type']
     conf_thresh = get_model_conf_threshold(model_type=model_type)
     model_dir,ref_altitude = get_model_extension(model_type=model_type,model_dir=model_dir,defaultaltitude=defaultAltitude[0])
-    print (model_dir)
+    print ('The model actually used: ',model_dir)
     if (kwargs['device']!=torch.device('cuda')):
         print ('loading CPU mode')
         device = torch.device('cpu')
