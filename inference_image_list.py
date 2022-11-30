@@ -30,7 +30,7 @@ transform = transforms.Compose([
 ])
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model_conf_threshold = {'Bird_A':0.2,'Bird_B':0.2,'Bird_C':0.2,'Bird_D':0.2,'Bird_E':0.2,'Bird_drone':0.22}
-model_extension = {'Bird_drone':{40:('_alt_30',30),90:('_alt_90',90)}}
+model_extension = {'Bird_drone':{40:('_alt_30',30),75:('_alt_60',60),90:('_alt_90',90)}}
 
 def get_model_conf_threshold (model_type):
     if (model_type in model_conf_threshold):
