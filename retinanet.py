@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
-
+import numpy as np
+from PIL import Image
 from fpn import FPN101, FPN50
 from torch.autograd import Variable
 
@@ -44,8 +45,6 @@ class RetinaNet(nn.Module):
                 layer.eval()
 
 
-import numpy as np
-from PIL import Image
 def img_transform(img_in, transform):
     """B*C*H*W
     :param img_roi: np.array
@@ -61,26 +60,8 @@ def img_transform(img_in, transform):
 if __name__ == '__main__':
     import cv2
     import torchvision.transforms as transforms
-    img_path = '/home/zt253/data/UnionData/mdc/mar2019_clipped_MODOC1214_0015GSD_LINE03B0501.png'
-    img = cv2.imread(img_path,1)
-    img = img[:, :, ::-1]   # BGR --> RGB
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize([0.4948052, 0.48568845, 0.44682974], [0.24580306, 0.24236229, 0.2603115])
-    ])
-    img_input = img_transform(img, transform)
-    def backward_hook(module, grad_in, grad_out):
-        grad_block.append(grad_out[0].detach())
-
-
-    def farward_hook(module, input, output):
-        fmap_block.append(output)
-    fmap_block = list()
-    grad_block = list()
-    net  = RetinaNet(2)
+    net  = RetinaNet_fusion(2,3)
+    model_dir = '/home/robert/Models/Retinanet_inference_example/checkpoint/drone_collection_KNN_15m/'
     print (net._modules.keys(),net.fpn._modules)
-    net.fpn.toplayer2.register_forward_hook(farward_hook)
-    net.fpn.toplayer2.register_backward_hook(backward_hook)
-
-    output = net(img_input)
-    
+    #net.load_state_dict(torch.load(model_dir))
+    net = torch.load(model_dir+'final_model.pkl')
