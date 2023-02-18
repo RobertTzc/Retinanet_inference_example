@@ -37,25 +37,25 @@ model_extension = {'Bird_drone':{40:('_alt_30',30),75:('_alt_60',60),90:('_alt_9
 
 
 if __name__ == '__main__':
-    h = [0,40,75,120]
+    h = [0,20,40,70,120]
     for idx in range(4):
         if (idx==0):
             continue
         image_root = '/home/robert/Data/WaterFowl_Processed/drone_collection'
-        df = pd.read_csv('/home/robert/Data/WaterFowl_Processed/drone_collection/image_info.csv')
+        df = pd.read_csv('/home/robert/Data/drone_collection/image_info_no_decoy.csv')
         df = df[(df['height']>=h[idx-1])&(df['height']<=h[idx])]
         image_list = [image_root+'/'+i for i in df['image_name']]
         altitude_list = [int(i) for i in list(df['height'])]
         location_list = ['test' for _ in image_list]
         date_list = ['2023' for _ in image_list]
         target_dir = './results/{}'.format(h[idx])
-        model_type = 'Bird_drone'
+        model_type = 'Bird_drone_KNN'
         os.makedirs(target_dir,exist_ok=True)
-        model_dir = '/home/robert/Models/Retinanet_inference_example/checkpoint/Bird_drone/final_model.pkl'
+        model_dir = '/home/robert/Models/Retinanet_inference_example/checkpoint/Bird_drone_KNN/final_model.pkl'
         image_out_dir = os.path.join(target_dir,'visualize-results')
         text_out_dir = os.path.join(target_dir,'detection-results')
         csv_out_dir = os.path.join(target_dir,'detection_summary.csv')
-        device = device
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         print ('*'*30)
         print ('Using model type: {}'.format(model_type))
         print ('Using device: {}'.format(device))

@@ -22,7 +22,7 @@ transform = transforms.Compose([
 ])
 
 
-def inference_mega_image_Retinanet(image_list, model_dir, image_out_dir,text_out_dir, defaultAltitude=[],**kwargs):
+def inference_mega_image_Retinanet(image_list, model_dir, image_out_dir,text_out_dir,device,scaleByAltitude, defaultAltitude=[],**kwargs):
     model_type = kwargs['model_type']
     if (model_type=='Bird_drone_KNN'):
         load_w_config = True
@@ -32,7 +32,7 @@ def inference_mega_image_Retinanet(image_list, model_dir, image_out_dir,text_out
     record = []
     for idxs, image_dir in (enumerate(image_list)):
         start_time = time.time()
-        mega_image,bbox_list = model.inference(image_dir,0.2,kwargs['use_altitude'])
+        mega_image,bbox_list = model.inference(image_dir,0.2,scaleByAltitude)
         txt_name = os.path.basename(image_dir).split('.')[0]+'.txt'
         num_bird = 0
         with open(os.path.join(text_out_dir,txt_name), 'w') as f:
@@ -92,7 +92,7 @@ if __name__ == '__main__':
     os.makedirs(text_out_dir, exist_ok=True)
     inference_mega_image_Retinanet(
 		image_list=image_list, model_dir = model_dir, image_out_dir = image_out_dir,text_out_dir = text_out_dir,csv_out_dir = csv_out_dir,
-		use_altitude=args.use_altitude, defaultAltitude=altitude_list,date_list = date_list,location_list =location_list,
+		scaleByAltitude=args.use_altitude, defaultAltitude=altitude_list,date_list = date_list,location_list =location_list,
         visualize = args.visualize,device = device,model_type = model_type)
     if (args.evaluate):
         try:
