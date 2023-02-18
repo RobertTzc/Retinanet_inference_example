@@ -5,7 +5,7 @@ import numpy as np
 from collections import defaultdict
 import scipy.stats as st
 
-detection_root = '/home/robert/Models/retinanet_original/checkpoint/no_decoy/drone_collection_original/inference_test/detection-results'
+detection_root = '/home/robert/Models/Retinanet_inference_example/results/70/detection-results'
 detection_list = glob.glob(detection_root+'/*.txt')
 MRE = defaultdict(list)
 MSE = defaultdict(list)
@@ -22,14 +22,14 @@ for detection_dir in detection_list:
         dt_data.append(float(line[1]))
     dt_data = np.asarray(dt_data)
     for confidence in np.arange(2,6,0.5):
-        MRE[confidence*0.1].append(min(1,(len(dt_data[dt_data>confidence*0.1])-len(gt_data))/len(gt_data)))
+        MRE[confidence*0.1].append(min(float('inf'),(len(dt_data[dt_data>confidence*0.1])-len(gt_data))/len(gt_data)))
 num_images = len(MRE[0.4])
 binwidth = 0.1
 plt.title('Model version 120m altitude')
 plt.xlabel('relative error')
 plt.ylabel('number of images')
 re = defaultdict(list)
-for idx,confidence in enumerate(np.arange(3,4,0.5)):
+for idx,confidence in enumerate(np.arange(4,5,0.5)):
     data = np.asarray(MRE[0.1*confidence])
     for i in [0.95,0.9,0.8,0.7]:
         conf_int = st.norm.interval(alpha=i, loc=np.mean(data), scale=st.sem(data))

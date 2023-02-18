@@ -37,7 +37,7 @@ model_extension = {'Bird_drone':{40:('_alt_30',30),75:('_alt_60',60),90:('_alt_9
 
 
 if __name__ == '__main__':
-    h = [0,20,40,70,120]
+    h = [20,40,70,120]
     for idx in range(4):
         if (idx==0):
             continue

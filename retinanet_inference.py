@@ -53,6 +53,7 @@ class Retinanet_instance():
         self.load_model()
     
     def load_model(self):
+        print(self.model_dir)
         if (self.load_w_config):
             config_dir = self.model_dir.replace('.pkl','.json')
             with open(config_dir,'r') as f:
@@ -118,5 +119,7 @@ class Retinanet_instance():
         return mega_image,bbox_list
 
 if __name__=='__main__':
-    a = get_model_extension(model_type='Bird_drone',model_dir = './checkpoint/Bird_drone/final_model.pkl',altitude = 15)
-    print (a)
+    model = Retinanet_instance(input_transform = None,model_type = 'Bird_drone_KNN',
+                            model_dir = './checkpoint/Bird_drone_KNN/final_model.pkl',
+                            device =torch.device('cuda'),load_w_config = True,altitude=30)
+    net = torch.load('/home/robert/Models/Retinanet_inference_example/checkpoint/Bird_drone_KNN/final_model_alt_60.pkl')
