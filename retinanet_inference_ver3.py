@@ -116,8 +116,8 @@ class Retinanet_instance():
                     bbox_list.append([coor_list[index][1]+ratio*x1, coor_list[index][0]+ratio*y1,
                                      coor_list[index][1]+ratio*x2, coor_list[index][0]+ratio*y2, score])
 
-        #box_idx = py_cpu_nms(bbox_list, 0.25)
-        #bbox_list = [bbox_list[i] for i in box_idx]
+        box_idx = py_cpu_nms(bbox_list, 0.25)
+        bbox_list = [bbox_list[i] for i in box_idx]
         if (debug):
             w = sub_image_list[0].shape[0]
             for i,coor in enumerate(coor_list):

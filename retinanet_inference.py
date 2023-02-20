@@ -93,7 +93,7 @@ class Retinanet_instance():
         
         bbox_list = []
         for index, sub_image in enumerate(sub_image_list):
-            tmp = []
+            sub_bbox_list = []
             with torch.no_grad():
                 inputs = self.transform(cv2.resize(
                     sub_image, (512, 512), interpolation=cv2.INTER_AREA))
@@ -107,11 +107,9 @@ class Retinanet_instance():
                         boxes[idx].cpu().numpy())  # (x1,y1, x2,y2)
                     score = scores.cpu().numpy()[idx]
                     #filter boxes that has overlapped
-                    tmp.append([x1,y1,x2,y2,score])
-                #print (tmp)
-                re = filter_slice(tmp,coor_list[index],sub_image.shape[0],mega_image.shape[:2],dis = 10)
-                for b in re:
-                    x1,y1,x2,y2,score = b
+                    sub_bbox_list.append([x1,y1,x2,y2,score])
+                for sub_box in sub_bbox_list:
+                    x1,y1,x2,y2,score = sub_box
                     bbox_list.append([coor_list[index][1]+ratio*x1, coor_list[index][0]+ratio*y1,
                                      coor_list[index][1]+ratio*x2, coor_list[index][0]+ratio*y2, score])
 

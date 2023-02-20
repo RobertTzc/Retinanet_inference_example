@@ -13,7 +13,7 @@ from args import *
 from utils import read_LatLotAlt
 from WaterFowlTools.mAp import mAp_calculate,plot_f1_score,plot_mAp
 import matplotlib.pyplot as plt
-from retinanet_inference import Retinanet_instance
+from retinanet_inference_ver3 import Retinanet_instance
 warnings.filterwarnings("ignore")
 
 transform = transforms.Compose([
