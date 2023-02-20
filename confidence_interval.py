@@ -22,6 +22,7 @@ for detection_dir in detection_list:
         dt_data.append(float(line[1]))
     dt_data = np.asarray(dt_data)
     for confidence in np.arange(2,6,0.5):
+        print ('{} \t Confidence score: {}\t predict {} \t GT {}'.format(file_name,confidence/10.,len(dt_data[dt_data>confidence*0.1]),len(gt_data)))
         MRE[confidence*0.1].append(min(float('inf'),(len(dt_data[dt_data>confidence*0.1])-len(gt_data))/len(gt_data)))
 num_images = len(MRE[0.4])
 binwidth = 0.1

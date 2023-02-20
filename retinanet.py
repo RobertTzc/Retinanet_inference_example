@@ -60,8 +60,20 @@ def img_transform(img_in, transform):
 if __name__ == '__main__':
     import cv2
     import torchvision.transforms as transforms
-    net  = RetinaNet_fusion(2,3)
-    model_dir = '/home/robert/Models/Retinanet_inference_example/checkpoint/drone_collection_KNN_15m/'
-    print (net._modules.keys(),net.fpn._modules)
+    #net  = RetinaNet(2)
+    model_dir = '/home/robert/Models/Retinanet_inference_example/checkpoint/Bird_drone_KNN/'
+    #print (net._modules.keys(),net.fpn._modules)
     #net.load_state_dict(torch.load(model_dir))
-    net = torch.load(model_dir+'final_model.pkl')
+    net = torch.load(model_dir+'final_model_alt_15.pkl')
+    print (net.state_dict().keys())
+    fmap_block = []
+    grad_block = []
+    def backward_hook(module, grad_in, grad_out):
+        grad_block.append(grad_out[0].detach())
+    def forward_hook(module, input, output):
+        fmap_block.append(output)
+    net.module.down_sample_layer.register_forward_hook(forward_hook)
+    dummy = torch.zeros((1,3,512,512))
+    out = net(dummy)
+    print (out[0].shape)
+    print (fmap_block[0].shape)

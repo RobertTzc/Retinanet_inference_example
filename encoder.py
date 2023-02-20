@@ -143,11 +143,12 @@ class DataEncoder:
 
 
 class DataEncoder_fusion:
-    def __init__(self,anchor_wh,**kwargs):
+    def __init__(self,anchor_wh,device,**kwargs):
         #self.anchor_wh = torch.tensor([[18,19],[28,26],[36,38],[55,56],[92,91.]])
         self.anchor_wh = torch.tensor(anchor_wh)
         self.num_anchors = len(self.anchor_wh)
         self.fm_size = 32
+        self.device = device
 
 
     def _get_anchor_boxes(self, input_size):
@@ -231,8 +232,7 @@ class DataEncoder_fusion:
         input_size = torch.Tensor([input_size,input_size]) if isinstance(input_size, int) \
                      else torch.Tensor(input_size)
         anchor_boxes = self._get_anchor_boxes(input_size)
-        
-        anchor_boxes=anchor_boxes.cuda()
+        anchor_boxes=anchor_boxes.to(self.device)
         loc_xy = loc_preds[:,:2]
         loc_wh = loc_preds[:,2:]
 
@@ -242,10 +242,10 @@ class DataEncoder_fusion:
         
         
         #binary class
-        labels = torch.ones(len(cls_preds)).long().cuda()
+        labels = torch.ones(len(cls_preds)).long().to(self.device)
         score= cls_preds.sigmoid()         # [#anchors,]
         #score,labels=cls_preds.sigmoid().max(1)
-        labels=labels.cuda()
+        labels=labels.to(self.device)
         ids = score > CLS_THRESH
         #
         if ids.sum()==0:
@@ -253,7 +253,7 @@ class DataEncoder_fusion:
         else:
             ids = ids.nonzero().squeeze()             # [#obj,]
             keep = box_nms(boxes[ids], score[ids], threshold=NMS_THRESH)
-            keep = keep.cuda()
+            keep = keep.to(self.device)
             if (len(ids.shape)==0):
                 ids = ids.unsqueeze(0)
             return boxes[ids][keep], labels[ids][keep], score[ids][keep]
