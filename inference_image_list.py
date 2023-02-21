@@ -32,7 +32,7 @@ def inference_mega_image_Retinanet(image_list, model_dir, image_out_dir,text_out
     record = []
     for idxs, image_dir in (enumerate(image_list)):
         start_time = time.time()
-        mega_image,bbox_list = model.inference(image_dir,0.2,scaleByAltitude)
+        mega_image,bbox_list = model.inference(image_dir,0.4,scaleByAltitude)
         txt_name = os.path.basename(image_dir).split('.')[0]+'.txt'
         num_bird = 0
         with open(os.path.join(text_out_dir,txt_name), 'w') as f:

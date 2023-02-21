@@ -165,6 +165,7 @@ class DataEncoder_fusion:
         fm_size =self.fm_size
         grid_size = input_size / fm_size
         fm_w, fm_h = int(fm_size), int(fm_size)
+        #print (fm_size,grid_size)
         xy = meshgrid(fm_w,fm_h) + 0.5  # [fm_h*fm_w, 2]
         xy = (xy.float()*grid_size).view(fm_h,fm_w,1,2).expand(fm_h,fm_w,self.num_anchors,2)
         wh = self.anchor_wh.view(1,1,self.num_anchors,2).expand(fm_h,fm_w,self.num_anchors,2)

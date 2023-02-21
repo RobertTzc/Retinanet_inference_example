@@ -72,7 +72,7 @@ class Retinanet_instance():
         self.model.eval()
         print('check net mode',next(self.model.parameters()).device)
 
-    def inference(self,image_dir,slice_overlap,read_GPS = False,debug = True):
+    def inference(self,image_dir,slice_overlap,read_GPS = False,debug = False):
         mega_image = cv2.imread(image_dir)
         mega_image = cv2.cvtColor(mega_image, cv2.COLOR_BGR2RGB)
         if (read_GPS):
@@ -99,6 +99,7 @@ class Retinanet_instance():
                     sub_image, (512, 512), interpolation=cv2.INTER_AREA))
                 inputs = inputs.unsqueeze(0).to(self.device)
                 loc_preds, cls_preds = self.model(inputs)
+                #print (loc_preds.shape,cls_preds.shape)
                 boxes, labels, scores = self.encoder.decode(
                     loc_preds.data.squeeze(), cls_preds.data.squeeze(), 512, CLS_THRESH = self.conf_threshold,NMS_THRESH = 0.25)
             if (len(boxes.shape) != 1):
@@ -109,7 +110,7 @@ class Retinanet_instance():
                     sub_bbox_list.append([x1,y1,x2,y2,score])
                 #filter boxes that has overlapped region on sliced images
 
-                sub_bbox_list = filter_slice(sub_bbox_list,coor_list[index],sub_image.shape[0],mega_image.shape[:2],dis = int(slice_overlap/2*512))
+                sub_bbox_list = filter_slice(sub_bbox_list,coor_list[index],sub_image.shape[0],mega_image.shape[:2],dis = int(slice_overlap/4*512))
                 
                 for sub_box in sub_bbox_list:
                     x1,y1,x2,y2,score = sub_box
@@ -138,9 +139,9 @@ if __name__=='__main__':
     transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
 ])
     model = Retinanet_instance(input_transform = transform,model_type = 'Bird_drone_KNN',
-                            model_dir = '/home/robert/Models/Retinanet_inference_example/checkpoint/Bird_drone_KNN/final_model.pkl',
-                            device =torch.device('cpu'),load_w_config = True,altitude=15)
-    image_dir = '/home/robert/Data/drone_collection/Cloud_HarvestedCrop_15m_DJI_0251.jpg'
+                            model_dir = './checkpoint/Bird_drone_KNN/final_model.pkl',
+                            device =torch.device('cuda'),load_w_config = True,altitude=15)
+    image_dir = '/home/zt253/data/WaterfowlDataset/Bird_I_Test/HarvestedCrop/DJI_0430.jpg'
     re = model.inference(image_dir=image_dir,slice_overlap= 0.2)
     import matplotlib.pyplot as plt
     plt.imshow(re[0])

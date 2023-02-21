@@ -1,6 +1,6 @@
 # Retinanet for Waterfowl detection inference example
 
-This code is an demo only on how to apply retinanet onto the Waterfowl dataset. In this demo contains pretrained model named as Bird_A, Bird_B, Bird_C, Bird_D, Bird_E  avaialble under folder **checkpoint** please download and unzip the checkpoint folder content using link here https://drive.google.com/file/d/1ZXva0sP5h7JiaUmU4mWpb5yrjwr7B1ai/view?usp=sharing and place the downloaded file inside the checkpoint folder.
+This code is an demo only on how to apply retinanet onto the Waterfowl dataset. In this demo contains pretrained model named as Bird_A, Bird_B, Bird_C, Bird_D, Bird_E  avaialble under folder **checkpoint** please download and unzip the checkpoint folder content using link here https://drive.google.com/file/d/1etKhoePwjasAXEXaZCb7as0C2uX6ozK7/view?usp=sharing and place the downloaded file inside the checkpoint folder.
 
 ## Branch usage:
 This is the EasyUse branch which provides most easy approach of using the system as research tools, if seeking for experiment/software testing, please switch to branch **master**

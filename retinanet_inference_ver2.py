@@ -6,6 +6,7 @@ import cv2
 import math
 from utils import read_LatLotAlt,get_GSD,filter_slice
 import numpy as np
+import matplotlib.pyplot as plt
 '''
 This script is an envolved version from retinanet_inference.py
 designed to prove the concept of slice and merging the feature map
@@ -81,7 +82,6 @@ class Retinanet_instance():
 
     def inference(self,image_dir,read_GPS = False,debug = True):
         mega_image = cv2.imread(image_dir)
-        image = mega_image.copy()
         mega_image = cv2.cvtColor(mega_image, cv2.COLOR_BGR2RGB)
         if (read_GPS):
             try:
@@ -95,14 +95,18 @@ class Retinanet_instance():
             print ('Using default altitude {}'.format(altitude))
         GSD,ref_GSD = get_GSD(altitude,camera_type='Pro2', ref_altitude=self.ref_altitude)
         ratio = 1.0*ref_GSD/GSD
+        ratio = 1
         print('Image processing altitude: {} \t Processing scale {}'.format(altitude,ratio))
         size  = int(ratio*512)
         fm_size = 32
         num_rows,num_columns = math.ceil(1.0*mega_image.shape[0]/size),math.ceil(1.0*mega_image.shape[1]/size)
-        padding  = np.zeros((num_rows*size,num_columns*size,3))
+        padding  = np.zeros((num_rows*size,num_columns*size,3),dtype='uint8')
         fm_map = torch.zeros((1,256,num_columns*fm_size,num_columns*fm_size))
         padding[0:mega_image.shape[0],0:mega_image.shape[1],:] = mega_image
         mega_image = padding
+        image = mega_image.copy()
+        plt.figure()
+        plt.imshow(mega_image)
         for i in range(num_rows):
             for j in range(num_columns):
                 sub_image = mega_image[i*size:(i+1)*size,j*size:(j+1)*size,:]
@@ -118,6 +122,9 @@ class Retinanet_instance():
         loc_preds = self.model.loc_head(fm_map).contiguous().view(fm_map.size(0),-1,4)
         cls_preds = self.model.cls_head(fm_map).contiguous().view(fm_map.size(0),-1,1)
         print (mega_image.shape,loc_preds.shape,cls_preds.shape)
+        plt.figure()
+        plt.imshow(fm_map[0,0,:,:])
+        self.encoder.fm_size = fm_size*num_columns
         boxes, labels, scores = self.encoder.decode(
                     loc_preds.data.squeeze(), cls_preds.data.squeeze(), input_size = num_columns*512, CLS_THRESH = self.conf_threshold,NMS_THRESH = 0.25)       
         bbox_list = []
@@ -128,10 +135,13 @@ class Retinanet_instance():
             #filter boxes that has overlapped
             bbox_list.append([x1,y1,x2,y2,score])
         for box in bbox_list:
-            cv2.putText(image, str(round(box[4], 2)), (int(box[0]), int(
-                            box[1])), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-            cv2.rectangle(image, (int(box[0]), int(
-                            box[1])), (int(box[2]), int(box[3])), (255, 0, 0), 2)
+            try:
+                cv2.putText(image, str(round(box[4], 2)), (int(box[0]), int(
+                                box[1])), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+                cv2.rectangle(image, (int(box[0]), int(
+                                box[1])), (int(box[2]), int(box[3])), (255, 0, 0), 2)
+            except:
+                print (box,image.shape)
         return image
                 
        
@@ -143,22 +153,10 @@ if __name__=='__main__':
     transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
 ])
     model = Retinanet_instance(input_transform = transform,model_type = 'Bird_drone_KNN',
-                            model_dir = '/home/robert/Models/Retinanet_inference_example/checkpoint/Bird_drone_KNN/final_model.pkl',
-                            device =torch.device('cpu'),load_w_config = True,altitude=30)
-    # net = torch.load('/home/robert/Models/Retinanet_inference_example/checkpoint/Bird_drone_KNN/final_model_alt_60.pkl')
-    # fmap_block = []
-    # grad_block = []
-    # def backward_hook(module, grad_in, grad_out):
-    #     grad_block.append(grad_out[0].detach())
-    # def forward_hook(module, input, output):
-    #     fmap_block.append(output)
-    # net.module.down_sample_layer.register_forward_hook(forward_hook)
-    # dummy = torch.zeros((1,3,512,512))
-    # out = net(dummy)
-    # print (out[0].shape)
-    # print (fmap_block[0].shape)
-    image_dir = '/home/robert/Data/drone_collection/Cloud_HarvestedCrop_15m_DJI_0251.jpg'
+                            model_dir = './checkpoint/Bird_drone_KNN/final_model.pkl',
+                            device =torch.device('cpu'),load_w_config = True,altitude=15)
+    image_dir = '/home/zt253/data/WaterfowlDataset/Bird_I_Test/HarvestedCrop/DJI_0430.jpg'
     re = model.inference(image_dir=image_dir)
-    import matplotlib.pyplot as plt
+    plt.figure()
     plt.imshow(re)
     plt.show()
