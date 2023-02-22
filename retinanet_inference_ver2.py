@@ -100,14 +100,14 @@ class Retinanet_instance():
         size  = int(ratio*512)
         fm_size = 32
         num_rows,num_columns = math.ceil(1.0*mega_image.shape[0]/size),math.ceil(1.0*mega_image.shape[1]/size)
-        padding  = np.zeros((num_rows*size,num_columns*size,3),dtype='uint8')
+        padding  = np.zeros((num_columns*size,num_columns*size,3),dtype='uint8')
         fm_map = torch.zeros((1,256,num_columns*fm_size,num_columns*fm_size))
         padding[0:mega_image.shape[0],0:mega_image.shape[1],:] = mega_image
         mega_image = padding
         image = mega_image.copy()
         plt.figure()
         plt.imshow(mega_image)
-        for i in range(num_rows):
+        for i in range(num_columns):
             for j in range(num_columns):
                 sub_image = mega_image[i*size:(i+1)*size,j*size:(j+1)*size,:]
                 with torch.no_grad():
